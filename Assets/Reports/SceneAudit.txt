@@ -1,0 +1,780 @@
+=======================================
+EXHIBITION SCENE AUDIT
+=======================================
+
+Scene:
+SampleScene
+
+Generated:
+7/12/2026 5:54:52 PM
+
+=======================================
+ROOT OBJECTS
+=======================================
+
+Super First Person Controller
+Directional Light
+Global Volume
+Cube
+Spot Light
+Spot Light (1)
+Spot Light (14)
+Spot Light (12)
+Spot Light (2)
+Spot Light (3)
+Spot Light (6)
+Spot Light (4)
+Spot Light (15)
+Spot Light (13)
+Spot Light (7)
+Spot Light (10)
+Spot Light (9)
+Spot Light (11)
+Spot Light (5)
+Spot Light (8)
+Painting_2 (8)
+Painting_2 (11)
+Painting_2 (10)
+Painting_2 (9)
+Painting_2 (7)
+Painting_2 (6)
+Painting_2 (1)
+Painting_2 (2)
+Painting_3 (1)
+Painting_3 (2)
+bench01_new (1)
+bench01_new
+Painting_2
+Painting_2 (5)
+Painting_2 (3)
+Painting_2 (4)
+Painting_3
+Painting_3 (3)
+Post-process Volume
+Canvas
+EventSystem
+AdminManager
+AdminCanvasUI
+PasswordCanvas
+APIManager
+
+=======================================
+HIERARCHY
+=======================================
+
+Super First Person Controller
+    Camera
+Directional Light
+Global Volume
+Cube
+Spot Light
+Spot Light (1)
+Spot Light (14)
+Spot Light (12)
+Spot Light (2)
+Spot Light (3)
+Spot Light (6)
+Spot Light (4)
+Spot Light (15)
+Spot Light (13)
+Spot Light (7)
+Spot Light (10)
+Spot Light (9)
+Spot Light (11)
+Spot Light (5)
+Spot Light (8)
+Painting_2 (8)
+Painting_2 (11)
+Painting_2 (10)
+Painting_2 (9)
+Painting_2 (7)
+Painting_2 (6)
+Painting_2 (1)
+Painting_2 (2)
+Painting_3 (1)
+Painting_3 (2)
+bench01_new (1)
+    base_c
+    wood
+bench01_new
+    base_c
+    wood
+Painting_2
+Painting_2 (5)
+Painting_2 (3)
+Painting_2 (4)
+Painting_3
+Painting_3 (3)
+Post-process Volume
+Canvas
+    ViewerPanel
+        BackgroundDim
+        DisplayImage
+        InfoContainer
+            InfoBackground
+            NameText
+            DescriptionText
+        hintContainer
+            HintBackground
+            hintText
+        CloseButton
+            Text (TMP)
+EventSystem
+AdminManager
+AdminCanvasUI
+    AdminPanel
+        UIContainer
+            Background
+            SearchInput
+                Text Area
+                    Placeholder
+                    Text
+            CollectionDropdown
+                Label
+                Arrow
+                Template
+                    Viewport
+                        Content
+                            Item
+                                Item Background
+                                Item Checkmark
+                                Item Label
+                    Scrollbar
+                        Sliding Area
+                            Handle
+            SpecimenScrollView
+                Viewport
+                    Content
+                Scrollbar Horizontal
+                    Sliding Area
+                        Handle
+                Scrollbar Vertical
+                    Sliding Area
+                        Handle
+            PreviewPanel
+                previewImage
+                previewName
+                PortalText
+                CollectionText
+                StatusText
+                DescriptionText
+            SlotGrid
+                Viewport
+                    Content
+                Scrollbar Horizontal
+                    Sliding Area
+                        Handle
+                Scrollbar Vertical
+                    Sliding Area
+                        Handle
+            SlotText
+            InstructionsText
+PasswordCanvas
+    PasswordUI
+        Background
+        PasswordText
+APIManager
+
+=======================================
+COMPONENTS
+=======================================
+
+Super First Person Controller
+    Transform
+    CapsuleCollider
+    Rigidbody
+    SUPERCharacterAIO
+    AudioSource
+
+Camera
+    Transform
+    Camera
+    AudioListener
+    UniversalAdditionalCameraData
+
+Directional Light
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Global Volume
+    Transform
+    Volume
+
+Cube
+    Transform
+    ProBuilderMesh
+    ProBuilderShape
+    MeshRenderer
+    MeshFilter
+    MeshCollider
+
+Spot Light
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (1)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (14)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (12)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (2)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (3)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (6)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (4)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (15)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (13)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (7)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (10)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (9)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (11)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (5)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Spot Light (8)
+    Transform
+    Light
+    UniversalAdditionalLightData
+
+Painting_2 (8)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (11)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (10)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (9)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (7)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (6)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (1)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (2)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_3 (1)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_3 (2)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+bench01_new (1)
+    Transform
+
+base_c
+    Transform
+    MeshFilter
+    MeshRenderer
+    MeshCollider
+
+wood
+    Transform
+    MeshFilter
+    MeshRenderer
+    MeshCollider
+
+bench01_new
+    Transform
+
+base_c
+    Transform
+    MeshFilter
+    MeshRenderer
+    MeshCollider
+
+wood
+    Transform
+    MeshFilter
+    MeshRenderer
+    MeshCollider
+
+Painting_2
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (5)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (3)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_2 (4)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_3
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Painting_3 (3)
+    Transform
+    MeshFilter
+    MeshRenderer
+    BoxCollider
+    PaintingSlot
+
+Post-process Volume
+    Transform
+    BoxCollider
+    PostProcessVolume
+
+Canvas
+    RectTransform
+    Canvas
+    CanvasScaler
+    GraphicRaycaster
+
+ViewerPanel
+    RectTransform
+    CanvasRenderer
+    Image
+    Image360Viewer
+
+BackgroundDim
+    RectTransform
+    CanvasRenderer
+    Image
+
+DisplayImage
+    RectTransform
+    CanvasRenderer
+    RawImage
+
+InfoContainer
+    RectTransform
+
+InfoBackground
+    RectTransform
+    CanvasRenderer
+    Image
+    Shadow
+
+NameText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+DescriptionText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+hintContainer
+    RectTransform
+
+HintBackground
+    RectTransform
+    CanvasRenderer
+    Image
+
+hintText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+CloseButton
+    RectTransform
+    CanvasRenderer
+    Image
+    Button
+
+Text (TMP)
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+EventSystem
+    Transform
+    EventSystem
+    InputSystemUIInputModule
+
+AdminManager
+    Transform
+    AdminUI
+    GalleryManager
+    ConfigManager
+    AdminAuth
+
+AdminCanvasUI
+    RectTransform
+    Canvas
+    CanvasScaler
+    GraphicRaycaster
+
+AdminPanel
+    RectTransform
+    CanvasRenderer
+    Image
+
+UIContainer
+    RectTransform
+
+Background
+    RectTransform
+    CanvasRenderer
+    Image
+
+SearchInput
+    RectTransform
+    CanvasRenderer
+    Image
+    TMP_InputField
+    SearchInputController
+
+Text Area
+    RectTransform
+    RectMask2D
+
+Placeholder
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+    LayoutElement
+
+Text
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+CollectionDropdown
+    RectTransform
+    CanvasRenderer
+    Image
+    TMP_Dropdown
+
+Label
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+Arrow
+    RectTransform
+    CanvasRenderer
+    Image
+
+Template
+    RectTransform
+    CanvasRenderer
+    Image
+    ScrollRect
+
+Viewport
+    RectTransform
+    Mask
+    CanvasRenderer
+    Image
+
+Content
+    RectTransform
+
+Item
+    RectTransform
+    Toggle
+
+Item Background
+    RectTransform
+    CanvasRenderer
+    Image
+
+Item Checkmark
+    RectTransform
+    CanvasRenderer
+    Image
+
+Item Label
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+Scrollbar
+    RectTransform
+    CanvasRenderer
+    Image
+    Scrollbar
+
+Sliding Area
+    RectTransform
+
+Handle
+    RectTransform
+    CanvasRenderer
+    Image
+
+SpecimenScrollView
+    RectTransform
+    CanvasRenderer
+    Image
+    ScrollRect
+
+Viewport
+    RectTransform
+    CanvasRenderer
+    Image
+    Mask
+
+Content
+    RectTransform
+    GridLayoutGroup
+
+Scrollbar Horizontal
+    RectTransform
+    CanvasRenderer
+    Image
+    Scrollbar
+
+Sliding Area
+    RectTransform
+
+Handle
+    RectTransform
+    CanvasRenderer
+    Image
+
+Scrollbar Vertical
+    RectTransform
+    CanvasRenderer
+    Image
+    Scrollbar
+
+Sliding Area
+    RectTransform
+
+Handle
+    RectTransform
+    CanvasRenderer
+    Image
+
+PreviewPanel
+    RectTransform
+    CanvasRenderer
+    Image
+    SpecimenViewerUI
+
+previewImage
+    RectTransform
+    CanvasRenderer
+    RawImage
+
+previewName
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+PortalText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+CollectionText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+StatusText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+DescriptionText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+SlotGrid
+    RectTransform
+    CanvasRenderer
+    Image
+    ScrollRect
+
+Viewport
+    RectTransform
+    CanvasRenderer
+    Image
+    Mask
+
+Content
+    RectTransform
+    GridLayoutGroup
+
+Scrollbar Horizontal
+    RectTransform
+    CanvasRenderer
+    Image
+    Scrollbar
+
+Sliding Area
+    RectTransform
+
+Handle
+    RectTransform
+    CanvasRenderer
+    Image
+
+Scrollbar Vertical
+    RectTransform
+    CanvasRenderer
+    Image
+    Scrollbar
+
+Sliding Area
+    RectTransform
+
+Handle
+    RectTransform
+    CanvasRenderer
+    Image
+
+SlotText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+InstructionsText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+PasswordCanvas
+    RectTransform
+    Canvas
+    CanvasScaler
+    GraphicRaycaster
+
+PasswordUI
+    RectTransform
+    CanvasRenderer
+    Image
+
+Background
+    RectTransform
+    CanvasRenderer
+    Image
+
+PasswordText
+    RectTransform
+    CanvasRenderer
+    TextMeshProUGUI
+
+APIManager
+    Transform
+    SpecimenAPIClient
+
+

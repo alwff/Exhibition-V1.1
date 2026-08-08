@@ -9,38 +9,38 @@ public class PaintingSlot : MonoBehaviour, IInteractable
     public Renderer targetRenderer;
     public SpecimenAPIClient apiClient;
 
-    private Texture2D[] images;
-    private bool isLoaded = false;
-    private int materialIndex = -1;
+    private LoadedSpecimen loadedSpecimen;
 
-    private SpecimenData lastData;
+    private int materialIndex = -1;
 
     void Start()
     {
-        if (!string.IsNullOrEmpty(specimenID) && apiClient != null)
-        {
-            StartCoroutine(apiClient.GetSpecimen(specimenID, (data) =>
-            {
-                lastData = data;
+        if (string.IsNullOrEmpty(specimenID))
+            return;
 
-                StartCoroutine(apiClient.LoadImagesStreaming(
-                    data.images,
+        if (apiClient == null)
+            return;
 
-                    (firstImage) =>
-                    {
-                        images = new Texture2D[] { firstImage };
-                        ApplyPreview();
-                    },
+        StartCoroutine(
 
-                    (loadedImages) =>
-                    {
-                        images = loadedImages;
-                        isLoaded = true;
-                        ApplyPreview();
-                    }
-                ));
-            }));
-        }
+            apiClient.LoadCompleteSpecimen(
+
+                specimenID,
+
+                specimen =>
+                {
+                    loadedSpecimen = specimen;
+
+                    apiClient.ApplyPreview(
+                        loadedSpecimen,
+                        targetRenderer,
+                        ref materialIndex
+                    );
+                }
+
+            )
+
+        );
     }
 
     public bool Interact()
@@ -57,76 +57,31 @@ public class PaintingSlot : MonoBehaviour, IInteractable
             return false;
         }
 
-        if (!isLoaded && images == null)
+        if (loadedSpecimen == null)
         {
-            StartCoroutine(apiClient.GetSpecimen(specimenID, (data) =>
-            {
-                lastData = data;
+            Debug.LogWarning("Specimen aún no ha terminado de cargarse.");
+            return false;
+        }    
 
-                StartCoroutine(apiClient.LoadImagesStreaming(
-                    data.images,
+        viewer.Show(loadedSpecimen);
 
-                    (firstImage) =>
-                    {
-                        images = new Texture2D[] { firstImage };
-                        ApplyPreview();
-                    },
-
-                    (loadedImages) =>
-                    {
-                        images = loadedImages;
-                        isLoaded = true;
-
-                        ApplyPreview();
-
-                        viewer.SetImages(images);
-                        viewer.SetInfo(data.name, data.description);
-                        viewer.Open();
-                    }
-                ));
-            }));
-
-            return true;
-        }
-
-        viewer.SetImages(images);
-
-        if (lastData != null)
-        {
-            viewer.SetInfo(lastData.name, lastData.description);
-        }
-
-        viewer.Open();
         return true;
     }
 
-    public void ApplyPreview()
+    public void SetSpecimen(LoadedSpecimen specimen)
     {
-        if (images == null || images.Length == 0 || targetRenderer == null) return;
+        loadedSpecimen = specimen;
 
-        Material[] mats = targetRenderer.materials;
+        if (loadedSpecimen == null)
+            return;
 
-        if (materialIndex < 0)
-        {
-            for (int i = 0; i < mats.Length; i++)
-            {
-                if (mats[i].name.ToLower().Contains("picture"))
-                {
-                    materialIndex = i;
-                    break;
-                }
-            }
+        apiClient.ApplyPreview(
+            loadedSpecimen,
+            targetRenderer,
+            ref materialIndex
+        );
 
-            if (materialIndex < 0 && mats.Length > 1)
-            {
-                materialIndex = 1;
-            }
-        }
-
-        if (materialIndex >= 0 && materialIndex < mats.Length)
-        {
-            mats[materialIndex].mainTexture = images[0];
-            targetRenderer.materials = mats;
-        }
+        specimenID = loadedSpecimen.data.id;
     }
+
 }

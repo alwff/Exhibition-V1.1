@@ -1,149 +1,185 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class AdminUI : MonoBehaviour
 {
     public GameObject adminCanvas;
-
-    public TextMeshProUGUI specimenText;
     public TextMeshProUGUI slotText;
     public TextMeshProUGUI instructionsText;
-
     public GalleryManager galleryManager;
-
-    // LISTA DE IDs TEMPORAL
-    public string[] specimenIDs = { "BUTTERFLY01", "DINO01" };
-
-    private string[] tempAssignments;
-
-    private int currentSpecimen = 0;
+    public SpecimenAPIClient apiClient;
+    public Transform contentParent;
+    public GameObject specimenCardPrefab;
+    public TMP_Dropdown collectionDropdown;
+    public Transform slotContentParent;
+    public GameObject slotButtonPrefab;
+    public SpecimenViewerUI specimenViewer;
     private int currentSlot = 0;
-
-    private bool isConfirming = false;
+    private SpecimenCardUI selectedCard = null;
+    private LoadedSpecimen selectedSpecimen;
 
     void Start()
     {
-        if (galleryManager == null)
+        // Crear selector de cuadros
+        for (int i = 0; i < galleryManager.slots.Length; i++)
         {
-            Debug.LogError("GalleryManager no asignado");
+            GameObject slotObj = Instantiate(
+                slotButtonPrefab,
+                slotContentParent
+            );
+
+            slotObj
+                .GetComponent<SlotButtonUI>()
+                .Setup(i, OnSlotSelected);
+        }
+
+        // Cargar lista de especímenes
+        StartCoroutine(
+
+            apiClient.GetAllSpecimens(
+
+                data =>
+                {
+                    HashSet<string> collections =
+                        new HashSet<string>();
+
+                    foreach (var s in data)
+                    {
+                        collections.Add(s.collection);
+
+                        GameObject card =
+                            Instantiate(
+                                specimenCardPrefab,
+                                contentParent
+                            );
+
+                        StartCoroutine(
+
+                            apiClient.LoadCompleteSpecimen(
+
+                                s.id,
+
+                                loaded =>
+                                {
+                                    card
+                                        .GetComponent<SpecimenCardUI>()
+                                        .Setup(
+                                            loaded.data.id,
+                                            loaded.data.name,
+                                            loaded.data.collection,
+                                            loaded.preview,
+                                            OnSpecimenSelected,
+                                            SelectCard
+                                        );
+                                }
+
+                            )
+
+                        );
+                    }
+
+                    SetupDropdown(collections);
+                    UpdateUI();
+                }
+
+            )
+
+        );
+    }
+
+    void SelectCard(SpecimenCardUI card)
+    {
+        if (selectedCard != null)
+            selectedCard.GetComponent<Image>().color = Color.white;
+
+        selectedCard = card;
+
+        selectedCard.GetComponent<Image>().color =
+            new Color(0.7f, 0.9f, 1f);
+    }
+
+    void OnSpecimenSelected(string id)
+    {
+        StartCoroutine(
+
+            apiClient.LoadCompleteSpecimen(
+
+                id,
+
+                specimen =>
+                {
+                    selectedSpecimen = specimen;
+
+                    specimenViewer.Show(specimen);
+                }
+
+            )
+
+        );
+
+    }
+
+    public void AssignSelectedSpecimen()
+    {
+        if (selectedSpecimen == null)
+        {
+            Debug.LogWarning("No hay espécimen cargado.");
             return;
         }
 
-        tempAssignments = galleryManager.GetCurrentAssignments();
+        galleryManager.AssignSpecimen(
+            currentSlot,
+            selectedSpecimen
+        );
 
-        if (tempAssignments == null || tempAssignments.Length == 0)
-        {
-            tempAssignments = new string[galleryManager.slots.Length];
-        }
+        Debug.Log(
+            $"Specimen '{selectedSpecimen.data.id}' asignado al cuadro {currentSlot + 1}"
+        );
+    }
 
+    void OnSlotSelected(int index)
+    {
+        currentSlot = index;
         UpdateUI();
     }
 
-    void Update()
+    void SetupDropdown(HashSet<string> collections)
     {
-        if (!gameObject.activeSelf) return;
+        List<string> options = new List<string>();
+        options.Add("All");
+        options.AddRange(collections);
 
-        // Navegación entre especímenes
-        if (!isConfirming)
+        collectionDropdown.ClearOptions();
+        collectionDropdown.AddOptions(options);
+
+        collectionDropdown.onValueChanged.AddListener(OnCollectionChanged);
+    }
+
+    void OnCollectionChanged(int index)
+    {
+        string selected = collectionDropdown.options[index].text;
+
+        foreach (Transform child in contentParent)
         {
-            if (Input.GetKeyDown(KeyCode.W))
+            var card = child.GetComponent<SpecimenCardUI>();
+
+            if (card != null)
             {
-                currentSpecimen = (currentSpecimen - 1 + specimenIDs.Length) % specimenIDs.Length;
-                UpdateUI();
+                bool match = selected == "All" || card.collection == selected;
+                child.gameObject.SetActive(match);
             }
-
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                currentSpecimen = (currentSpecimen + 1) % specimenIDs.Length;
-                UpdateUI();
-            }
-
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                currentSlot = (currentSlot - 1 + galleryManager.slots.Length) % galleryManager.slots.Length;
-                UpdateUI();
-            }
-
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                currentSlot = (currentSlot + 1) % galleryManager.slots.Length;
-                UpdateUI();
-            }
-        }
-
-        // Confirmar selección
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            if (!isConfirming)
-            {
-                isConfirming = true;
-            }
-            else
-            {
-                Assign();
-                isConfirming = false;
-            }
-
-            UpdateUI();
-        }
-
-        // Cancelar selección
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            if (isConfirming)
-            {
-                isConfirming = false;
-                UpdateUI();
-            }
-        }
-
-        // Salir del admin
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            adminCanvas.SetActive(false);
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
         }
     }
 
-    void Assign()
+    void UpdateUI()
     {
-        string id = specimenIDs[currentSpecimen];
+        slotText.text = "Cuadro: " + (currentSlot + 1);
 
-        tempAssignments[currentSlot] = id;
-
-        galleryManager.AssignSpecimen(currentSlot, id);
-
-        Debug.Log("Asignado: " + id + " al cuadro " + currentSlot);
-    }
-
-    public void UpdateUI()
-    {
-        string specimenID = specimenIDs[currentSpecimen];
-
-        if (specimenText != null)
-            specimenText.text = "Especimen: " + specimenID;
-
-        if (slotText != null)
-            slotText.text = "Cuadro: " + (currentSlot + 1);
-
-        if (instructionsText != null)
-        {
-            if (!isConfirming)
-            {
-                instructionsText.text =
-                    "W/S: Cambiar espécimen\n" +
-                    "A/D: Cambiar cuadro\n" +
-                    "Y: Seleccionar\n" +
-                    "ESC: Salir";
-            }
-            else
-            {
-                instructionsText.text =
-                    "Y: Confirmar\n" +
-                    "X: Cancelar";
-            }
-        }
+        instructionsText.text =
+            "Click: seleccionar espécimen\n" +
+            "Selecciona slot abajo\n" +
+            "ESC: salir";
     }
 }

@@ -1,20 +1,39 @@
+using System;
 using System.IO;
 using UnityEngine;
+using System.Collections;
 
 [System.Serializable]
 public class ConfigData
 {
+    public string configID;
+
+    public int version = 1;
+
+    public string exhibitionName = "Colecciones UVG";
+
+    public string modifiedBy = "admin";
+
+    public string lastModified;
+
     public string[] slots;
 }
 
+
 public class ConfigManager : MonoBehaviour
 {
-    public string filePath = "C:/Specimens/config.json";
+    public string filePath = "C:/Specimens/ExhibitionConfig.json";
     public GalleryManager gallery;
 
-    void Start()
+    public SpecimenAPIClient apiClient;
+
+    private string configID = Guid.NewGuid().ToString();
+
+    IEnumerator Start()
     {
-        // Load();
+        yield return null;
+
+        yield return Load();
     }
 
     public void Save()
@@ -26,6 +45,16 @@ public class ConfigManager : MonoBehaviour
         }
 
         ConfigData data = new ConfigData();
+        data.configID = configID;
+
+        data.version = 1;
+
+        data.exhibitionName = "Colecciones UVG";
+
+        data.modifiedBy = "admin";
+
+        data.lastModified =
+            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
         string[] raw = gallery.GetCurrentAssignments();
         string[] clean = new string[raw.Length];
@@ -40,42 +69,65 @@ public class ConfigManager : MonoBehaviour
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(filePath, json);
 
-        Debug.Log("CONFIG GUARDADA");
+        Debug.Log(
+            $"ExhibitionConfig guardada ({data.exhibitionName})"
+        );
     }
 
-    public void Load()
+    public IEnumerator Load()
     {
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("No existe config.json aún");
-            return;
+            Debug.LogWarning("No existe ExhibitionConfig.json aún");
+            yield break;
         }
 
         string json = File.ReadAllText(filePath);
-        ConfigData data = JsonUtility.FromJson<ConfigData>(json);
+        ConfigData data =
+            JsonUtility.FromJson<ConfigData>(json);
+
+        if (!string.IsNullOrEmpty(data.configID))
+        {
+            configID = data.configID;
+        }
 
         if (data == null || data.slots == null)
         {
             Debug.LogWarning("Config inválida");
-            return;
+            yield break;
         }
 
-        if (gallery == null)
-        {
-            Debug.LogError("Gallery no asignado en ConfigManager");
-            return;
-        }
+        Debug.Log(
+            $"Config v{data.version} | " +
+            $"{data.exhibitionName} | " +
+            $"{data.lastModified}"
+        );
 
         for (int i = 0; i < data.slots.Length && i < gallery.slots.Length; i++)
         {
-            string path = data.slots[i];
+            string portalCode = data.slots[i];
 
-            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
+            if (string.IsNullOrEmpty(portalCode))
+                continue;
+
+            LoadedSpecimen loaded = null;
+
+            yield return apiClient.LoadCompleteSpecimen(
+                portalCode,
+                specimen =>
+                {
+                    loaded = specimen;
+                }
+            );
+
+            if (loaded != null)
             {
-                gallery.AssignSpecimen(i, path);
-            }
+                gallery.AssignSpecimen(i, loaded);
+}
         }
 
-        Debug.Log("CONFIG CARGADA");
+        Debug.Log(
+            $"ExhibitionConfig cargada ({data.exhibitionName})"
+        );
     }
 }

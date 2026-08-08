@@ -11,9 +11,6 @@ public class Image360Viewer : MonoBehaviour
     public GameObject hintContainer;
     public TextMeshProUGUI hintText;
 
-    public TextMeshProUGUI nameText;
-    public TextMeshProUGUI descriptionText;
-
     public Rigidbody playerRigidbody;
 
     private Texture2D[] frames;
@@ -21,7 +18,17 @@ public class Image360Viewer : MonoBehaviour
 
     public float hintDuration = 3f;
 
-    public void SetImages(Texture2D[] imgs)
+    // ZOOM
+    float zoom = 1f;
+    float zoomVelocity = 0f;
+
+    float minZoom = 0.8f;
+    float maxZoom = 2.5f;
+
+    float zoomSmooth = 8f;
+    float zoomDamping = 5f;
+
+    private void SetImages(Texture2D[] imgs)
     {
         frames = imgs;
         index = 0;
@@ -32,7 +39,7 @@ public class Image360Viewer : MonoBehaviour
         }
     }
 
-    public void Open()
+    private void Open()
     {
         panel.SetActive(true);
 
@@ -54,18 +61,12 @@ public class Image360Viewer : MonoBehaviour
 
             if (hintText != null)
             {
-                hintText.text = "Arrastra presionando click izquierdo para rotar\nPresiona X para cerrar";
+                hintText.text = "Arrastra presionando click izquierdo para rotar\nScroll para zoom\nPresiona X para cerrar";
             }
 
             CancelInvoke(nameof(HideHint));
             Invoke(nameof(HideHint), hintDuration);
         }
-
-        if (nameText != null)
-            StartCoroutine(FadeText(nameText, 0.5f));
-
-        if (descriptionText != null)
-            StartCoroutine(FadeText(descriptionText, 0.8f));
     }
 
     public void Close()
@@ -78,6 +79,7 @@ public class Image360Viewer : MonoBehaviour
     {
         if (!panel.activeSelf || frames == null || frames.Length == 0) return;
 
+        // ROTACIÓN
         if (Input.GetMouseButton(0))
         {
             float delta = Input.GetAxis("Mouse X");
@@ -90,6 +92,30 @@ public class Image360Viewer : MonoBehaviour
             display.texture = frames[index];
         }
 
+        // ZOOM INPUT
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+
+        if (scroll != 0)
+        {
+            zoomVelocity += scroll * 5f;
+        }
+
+        // INERCIA
+        zoom += zoomVelocity * Time.deltaTime;
+        zoomVelocity = Mathf.Lerp(zoomVelocity, 0, Time.deltaTime * zoomDamping);
+
+        // LÍMITES
+        zoom = Mathf.Clamp(zoom, minZoom, maxZoom);
+
+        // SUAVIZADO
+        Vector3 targetScale = Vector3.one * zoom;
+        display.rectTransform.localScale = Vector3.Lerp(
+            display.rectTransform.localScale,
+            targetScale,
+            Time.deltaTime * zoomSmooth
+        );
+
+        // CERRAR
         if (Input.GetKeyDown(KeyCode.X))
         {
             Close();
@@ -142,12 +168,19 @@ public class Image360Viewer : MonoBehaviour
         }
     }
 
-    public void SetInfo(string name, string description)
+    public void Show(LoadedSpecimen specimen)
     {
-        if (nameText != null)
-            nameText.text = name;
+        if (specimen == null)
+            return;
 
-        if (descriptionText != null)
-            descriptionText.text = description;
+        SetImages(specimen.images);
+
+        if (infoPanel != null)
+            infoPanel .Show(specimen);
+
+        Open();
     }
+
+    public SpecimenViewerUI infoPanel;
 }
+
