@@ -84,4 +84,38 @@ public class PaintingSlot : MonoBehaviour, IInteractable
         specimenID = loadedSpecimen.data.id;
     }
 
+    public void ClearSpecimen()
+    {
+        loadedSpecimen = null;
+        specimenID = "";
+
+        if (targetRenderer == null)
+            return;
+
+        Material[] mats = targetRenderer.materials;
+
+        if (materialIndex < 0)
+        {
+            for (int i = 0; i < mats.Length; i++)
+            {
+                if (mats[i].name.ToLower().Contains("picture"))
+                {
+                    materialIndex = i;
+                    break;
+                }
+            }
+
+            if (materialIndex < 0 && mats.Length > 1)
+                materialIndex = 1;
+        }
+
+        if (materialIndex >= 0 && materialIndex < mats.Length)
+        {
+            mats[materialIndex].mainTexture = null;
+            targetRenderer.materials = mats;
+        }
+
+        Debug.Log($"Cuadro '{gameObject.name}' limpiado.");
+    }
+
 }

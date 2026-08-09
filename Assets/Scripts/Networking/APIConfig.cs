@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class APIConfig
 {
-    public static APIEnvironment Environment = APIEnvironment.Local;
+    public static APIEnvironment Environment = APIEnvironment.Ngrok;
 
     private const string LocalURL =
         "http://192.168.1.22:8000/api";

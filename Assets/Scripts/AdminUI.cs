@@ -6,8 +6,12 @@ using System.Collections.Generic;
 public class AdminUI : MonoBehaviour
 {
     public GameObject adminCanvas;
-    public TextMeshProUGUI slotText;
     public TextMeshProUGUI instructionsText;
+    [Header("Assignment Panel")]
+    public TextMeshProUGUI selectedSpecimenText;
+    public TextMeshProUGUI selectedSlotText;
+    public GameObject resetConfirmation;
+    public Button assignButton;
     public GalleryManager galleryManager;
     public SpecimenAPIClient apiClient;
     public Transform contentParent;
@@ -16,9 +20,38 @@ public class AdminUI : MonoBehaviour
     public Transform slotContentParent;
     public GameObject slotButtonPrefab;
     public SpecimenViewerUI specimenViewer;
-    private int currentSlot = 0;
+    private int currentSlot = -1;
     private SpecimenCardUI selectedCard = null;
     private LoadedSpecimen selectedSpecimen;
+
+    private readonly Vector2[] slotMapPositions =
+    {
+        // Norte
+        new Vector2(-300f,  62f),   // Slot 1
+        new Vector2(   0f,  62f),   // Slot 2
+        new Vector2( 300f,  62f),   // Slot 3
+
+        // Este
+        new Vector2( 540f,  45f),   // Slot 4
+        new Vector2( 540f,   0f),   // Slot 5
+        new Vector2( 540f, -45f),   // Slot 6
+
+        // Sur
+        new Vector2( 300f, -62f),   // Slot 7
+        new Vector2(   0f, -62f),   // Slot 8 
+        new Vector2(-300f, -62f),   // Slot 9
+
+        // Oeste
+        new Vector2(-540f, -45f),   // Slot 10
+        new Vector2(-540f,   0f),   // Slot 11
+        new Vector2(-540f,  45f),   // Slot 12
+
+        // Centro 
+        new Vector2(-65f,   0f),    // Slot 13
+        new Vector2(-155f,  0f),    // Slot 14
+        new Vector2( 65f,   0f),    // Slot 15
+        new Vector2(155f,   0f)     // Slot 16
+    };
 
     void Start()
     {
@@ -33,6 +66,18 @@ public class AdminUI : MonoBehaviour
             slotObj
                 .GetComponent<SlotButtonUI>()
                 .Setup(i, OnSlotSelected);
+
+            RectTransform rect =
+                slotObj.GetComponent<RectTransform>();
+
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+
+            rect.sizeDelta = new Vector2(72f, 28f);
+
+            if (i < slotMapPositions.Length)
+                rect.anchoredPosition = slotMapPositions[i];
         }
 
         // Cargar lista de especímenes
@@ -87,6 +132,8 @@ public class AdminUI : MonoBehaviour
             )
 
         );
+
+        UpdateAssignmentPanel();
     }
 
     void SelectCard(SpecimenCardUI card)
@@ -112,7 +159,12 @@ public class AdminUI : MonoBehaviour
                 {
                     selectedSpecimen = specimen;
 
+                    if (selectedSpecimenText != null)
+                        selectedSpecimenText.text = specimen.data.name;
+
                     specimenViewer.Show(specimen);
+
+                    UpdateAssignmentPanel();
                 }
 
             )
@@ -125,7 +177,13 @@ public class AdminUI : MonoBehaviour
     {
         if (selectedSpecimen == null)
         {
-            Debug.LogWarning("No hay espécimen cargado.");
+            Debug.LogWarning("No hay espécimen seleccionado.");
+            return;
+        }
+
+        if (currentSlot < 0)
+        {
+            Debug.LogWarning("No hay cuadro seleccionado.");
             return;
         }
 
@@ -139,10 +197,51 @@ public class AdminUI : MonoBehaviour
         );
     }
 
+    public void ClearSelectedSlot()
+    {
+        if (currentSlot < 0)
+        {
+            Debug.LogWarning("No hay cuadro seleccionado.");
+            return;
+        }
+
+        galleryManager.ClearSlot(currentSlot);
+
+        Debug.Log(
+            $"Cuadro {currentSlot + 1} limpiado."
+        );
+    }
+
+    public void OpenResetConfirmation()
+    {
+        if (resetConfirmation != null)
+            resetConfirmation.SetActive(true);
+    }
+
+    public void CloseResetConfirmation()
+    {
+        if (resetConfirmation != null)
+            resetConfirmation.SetActive(false);
+    }
+
+    public void ConfirmResetGallery()
+    {
+        galleryManager.ClearAll();
+
+        CloseResetConfirmation();
+
+        Debug.Log("Galería completa restablecida.");
+    }
+
     void OnSlotSelected(int index)
     {
         currentSlot = index;
+
+        if (selectedSlotText != null)
+            selectedSlotText.text = "Slot " + (currentSlot + 1);
+
         UpdateUI();
+        UpdateAssignmentPanel();
     }
 
     void SetupDropdown(HashSet<string> collections)
@@ -175,11 +274,22 @@ public class AdminUI : MonoBehaviour
 
     void UpdateUI()
     {
-        slotText.text = "Cuadro: " + (currentSlot + 1);
-
         instructionsText.text =
-            "Click: seleccionar espécimen\n" +
-            "Selecciona slot abajo\n" +
-            "ESC: salir";
+            "Selecciona un cuadro en el mapa para comenzar con la asignación.";
+    }
+
+    void UpdateAssignmentPanel()
+    {
+        bool hasSpecimen = selectedSpecimen != null;
+        bool hasSlot = currentSlot >= 0;
+
+        if (selectedSpecimenText != null && !hasSpecimen)
+            selectedSpecimenText.text = "Ningún espécimen seleccionado";
+
+        if (selectedSlotText != null && !hasSlot)
+            selectedSlotText.text = "Ningún cuadro seleccionado";
+
+        if (assignButton != null)
+            assignButton.interactable = hasSpecimen && hasSlot;
     }
 }
