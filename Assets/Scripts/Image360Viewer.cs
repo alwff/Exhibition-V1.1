@@ -175,10 +175,12 @@ public class Image360Viewer : MonoBehaviour
 
         SetImages(specimen.images);
 
-        if (infoPanel != null)
-            infoPanel .Show(specimen);
-
+        // Activa ViewerPanel
         Open();
+
+        // Carga la información
+        if (infoPanel != null)
+            infoPanel.Show(specimen);
     }
 
     public SpecimenViewerUI infoPanel;

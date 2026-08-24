@@ -38,7 +38,8 @@ public TextMeshProUGUI statusText;
 
         ShowMetadata(specimen);
 
-        StartCoroutine(FadeIn());
+        if (gameObject.activeInHierarchy)
+            StartCoroutine(FadeIn());
     }
 
 
