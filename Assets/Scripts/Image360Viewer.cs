@@ -16,7 +16,7 @@ public class Image360Viewer : MonoBehaviour
     private Texture2D[] frames;
     private int index = 0;
 
-    public float hintDuration = 3f;
+    public float hintDuration = 5f;
 
     // ZOOM
     float zoom = 1f;
