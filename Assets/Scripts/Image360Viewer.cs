@@ -22,7 +22,7 @@ public class Image360Viewer : MonoBehaviour
     float zoom = 1f;
     float zoomVelocity = 0f;
 
-    float minZoom = 0.8f;
+    float minZoom = 1f;
     float maxZoom = 2.5f;
 
     float zoomSmooth = 8f;
@@ -42,6 +42,18 @@ public class Image360Viewer : MonoBehaviour
     private void Open()
     {
         panel.SetActive(true);
+
+        // Reiniciar estado del visor
+        zoom = 1f;
+        zoomVelocity = 0f;
+        index = 0;
+
+        display.rectTransform.localScale = Vector3.one;
+
+        if (frames != null && frames.Length > 0)
+        {
+            display.texture = frames[0];
+        }
 
         panel.transform.localScale = Vector3.zero;
         StartCoroutine(ScaleIn());
