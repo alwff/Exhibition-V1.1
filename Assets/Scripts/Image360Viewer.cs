@@ -8,6 +8,8 @@ public class Image360Viewer : MonoBehaviour
     public GameObject panel;
     public RawImage display;
 
+    public RectTransform imageViewport;
+
     public GameObject hintContainer;
     public TextMeshProUGUI hintText;
 
@@ -15,6 +17,8 @@ public class Image360Viewer : MonoBehaviour
 
     private Texture2D[] frames;
     private int index = 0;
+
+    private bool isDragging = false;
 
     public float hintDuration = 5f;
 
@@ -47,6 +51,7 @@ public class Image360Viewer : MonoBehaviour
         zoom = 1f;
         zoomVelocity = 0f;
         index = 0;
+        isDragging = false;
 
         display.rectTransform.localScale = Vector3.one;
 
@@ -59,6 +64,10 @@ public class Image360Viewer : MonoBehaviour
         StartCoroutine(ScaleIn());
 
         InputBlocker.blockInput = true;
+
+        // Cursor disponible para interactuar con la UI
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
         if (playerRigidbody != null)
         {
@@ -83,8 +92,13 @@ public class Image360Viewer : MonoBehaviour
 
     public void Close()
     {
+        isDragging = false;
+
         panel.SetActive(false);
         InputBlocker.blockInput = false;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
@@ -92,16 +106,46 @@ public class Image360Viewer : MonoBehaviour
         if (!panel.activeSelf || frames == null || frames.Length == 0) return;
 
         // ROTACIÓN
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0))
+        {
+            bool mouseInsideViewport =
+                imageViewport != null &&
+                RectTransformUtility.RectangleContainsScreenPoint(
+                    imageViewport,
+                    Input.mousePosition,
+                    null
+                );
+
+            if (mouseInsideViewport)
+            {
+                isDragging = true;
+
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+        }
+
+        if (isDragging && Input.GetMouseButton(0))
         {
             float delta = Input.GetAxis("Mouse X");
 
             index += (int)(delta * 10);
 
-            if (index >= frames.Length) index = 0;
-            if (index < 0) index = frames.Length - 1;
+            if (index >= frames.Length)
+                index = 0;
+
+            if (index < 0)
+                index = frames.Length - 1;
 
             display.texture = frames[index];
+        }
+
+        if (Input.GetMouseButtonUp(0) && isDragging)
+        {
+            isDragging = false;
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         // ZOOM INPUT
