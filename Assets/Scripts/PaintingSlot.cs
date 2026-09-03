@@ -43,6 +43,14 @@ public class PaintingSlot : MonoBehaviour, IInteractable
         );
     }
 
+    public bool CanInteract()
+    {
+        return viewer != null &&
+            apiClient != null &&
+            !string.IsNullOrEmpty(specimenID) &&
+            loadedSpecimen != null;
+    }
+
     public bool Interact()
     {
         if (viewer == null || apiClient == null)
