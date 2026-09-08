@@ -45,7 +45,7 @@ public class SUPERCharacterAIO : MonoBehaviour{
 
     public MouseInputInversionModes mouseInputInversion;
     public float Sensitivity = 8;
-    public float webSensitivityMultiplier = 0.4f;
+    public float webSensitivityMultiplier = 0.3f;
     public float rotationWeight = 4;
     public float verticalRotationRange = 170.0f;
     public float standingEyeHeight = 0.8f;
