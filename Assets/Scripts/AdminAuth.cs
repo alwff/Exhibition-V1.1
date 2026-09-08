@@ -18,6 +18,9 @@ public class AdminAuth : MonoBehaviour
     [Header("Authentication")]
     public string correctPassword = "1234";
 
+    [Header("Admin Shortcut")]
+    public KeyCode adminKey = KeyCode.M;
+
     [Header("Player")]
     public SUPERCharacterAIO playerController;
     public Rigidbody playerRigidbody;
@@ -43,16 +46,16 @@ public class AdminAuth : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F1))
+        if (Input.GetKeyDown(adminKey))
         {
-            // Si ya estamos dentro del menú Admin, F1 sale directamente al museo
+            // Si ya estamos dentro del menú Admin, M sale directamente al museo
             if (adminCanvas.activeSelf)
             {
                 CloseAll();
                 return;
             }
 
-            // Si estamos jugando normalmente, F1 abre autenticación
+            // Si estamos jugando normalmente, M abre autenticación
             if (!passwordCanvas.activeSelf)
             {
                 OpenAuth();

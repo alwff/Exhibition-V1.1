@@ -38,6 +38,17 @@ public class ConfigManager : MonoBehaviour
 
     public void Save()
     {
+    #if UNITY_WEBGL && !UNITY_EDITOR
+
+        Debug.Log(
+            "ConfigManager.Save omitido en WebGL. " +
+            "La configuración debe persistirse mediante la API."
+        );
+
+        return;
+
+    #else
+
         if (gallery == null)
         {
             Debug.LogError("Gallery no asignado en ConfigManager");
@@ -48,9 +59,7 @@ public class ConfigManager : MonoBehaviour
         data.configID = configID;
 
         data.version = 1;
-
         data.exhibitionName = "Colecciones UVG";
-
         data.modifiedBy = "admin";
 
         data.lastModified =
@@ -61,40 +70,57 @@ public class ConfigManager : MonoBehaviour
 
         for (int i = 0; i < raw.Length; i++)
         {
-            clean[i] = string.IsNullOrEmpty(raw[i]) ? "" : raw[i];
+            clean[i] =
+                string.IsNullOrEmpty(raw[i]) ? "" : raw[i];
         }
 
         data.slots = clean;
 
         string json = JsonUtility.ToJson(data, true);
+
         File.WriteAllText(filePath, json);
 
         Debug.Log(
             $"ExhibitionConfig guardada ({data.exhibitionName})"
         );
-    }
 
+    #endif
+    }
     public IEnumerator Load()
     {
+    #if UNITY_WEBGL && !UNITY_EDITOR
+
+        Debug.Log(
+            "ConfigManager.Load local omitido en WebGL."
+        );
+
+        yield break;
+
+    #else
+
         if (!File.Exists(filePath))
         {
-            Debug.LogWarning("No existe ExhibitionConfig.json aún");
+            Debug.LogWarning(
+                "No existe ExhibitionConfig.json aún"
+            );
+
             yield break;
         }
 
         string json = File.ReadAllText(filePath);
+
         ConfigData data =
             JsonUtility.FromJson<ConfigData>(json);
-
-        if (!string.IsNullOrEmpty(data.configID))
-        {
-            configID = data.configID;
-        }
 
         if (data == null || data.slots == null)
         {
             Debug.LogWarning("Config inválida");
             yield break;
+        }
+
+        if (!string.IsNullOrEmpty(data.configID))
+        {
+            configID = data.configID;
         }
 
         Debug.Log(
@@ -103,7 +129,11 @@ public class ConfigManager : MonoBehaviour
             $"{data.lastModified}"
         );
 
-        for (int i = 0; i < data.slots.Length && i < gallery.slots.Length; i++)
+        for (
+            int i = 0;
+            i < data.slots.Length && i < gallery.slots.Length;
+            i++
+        )
         {
             string portalCode = data.slots[i];
 
@@ -123,11 +153,13 @@ public class ConfigManager : MonoBehaviour
             if (loaded != null)
             {
                 gallery.AssignSpecimen(i, loaded);
-}
+            }
         }
 
         Debug.Log(
             $"ExhibitionConfig cargada ({data.exhibitionName})"
         );
+
+    #endif
     }
 }

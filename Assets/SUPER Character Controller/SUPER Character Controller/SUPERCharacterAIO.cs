@@ -45,6 +45,7 @@ public class SUPERCharacterAIO : MonoBehaviour{
 
     public MouseInputInversionModes mouseInputInversion;
     public float Sensitivity = 8;
+    public float webSensitivityMultiplier = 0.4f;
     public float rotationWeight = 4;
     public float verticalRotationRange = 170.0f;
     public float standingEyeHeight = 0.8f;
@@ -592,7 +593,20 @@ public class SUPERCharacterAIO : MonoBehaviour{
             #endregion
 
             #region Camera
-            RotateView(MouseXY, Sensitivity, rotationWeight);
+            #if UNITY_WEBGL && !UNITY_EDITOR
+                RotateView(
+                    MouseXY,
+                    Sensitivity * webSensitivityMultiplier,
+                    rotationWeight
+                );
+            #else
+                RotateView(
+                    MouseXY,
+                    Sensitivity,
+                    rotationWeight
+                );
+            #endif
+            
              if(cameraPerspective == PerspectiveModes._3rdPerson){
                 UpdateBodyRotation_3rdPerson();
                 UpdateCameraPosition_3rdPerson();
