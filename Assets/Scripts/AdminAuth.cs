@@ -2,6 +2,20 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using SUPERCharacter;
+using System.Collections;
+using UnityEngine.Networking;
+
+[System.Serializable]
+public class ExhibitionAuthRequest
+{
+    public string password;
+}
+
+[System.Serializable]
+public class ExhibitionAuthResponse
+{
+    public bool success;
+}
 
 public class AdminAuth : MonoBehaviour
 {
@@ -16,7 +30,7 @@ public class AdminAuth : MonoBehaviour
     public Button eyeButton;
 
     [Header("Authentication")]
-    public string correctPassword = "1234";
+    public string authUrl = "/api/exhibition/auth";
 
     [Header("Admin Shortcut")]
     public KeyCode adminKey = KeyCode.M;
@@ -108,6 +122,9 @@ public class AdminAuth : MonoBehaviour
         isEntering = true;
         input = "";
         showPassword = false;
+        
+        if (loginButton != null)
+            loginButton.interactable = true;
 
         ClearError();
         UpdatePasswordDisplay();
@@ -131,23 +148,139 @@ public class AdminAuth : MonoBehaviour
         if (!isEntering)
             return;
 
-        if (input == correctPassword)
-        {
-            passwordCanvas.SetActive(false);
-            adminCanvas.SetActive(true);
-
-            isEntering = false;
-            input = "";
-
-            ClearError();
-        }
-        else
+        if (string.IsNullOrEmpty(input))
         {
             if (errorText != null)
-                errorText.text = "Clave incorrecta. Inténtalo nuevamente.";
+                errorText.text = "Ingresa la clave.";
 
-            input = "";
-            UpdatePasswordDisplay();
+            return;
+        }
+
+        StartCoroutine(
+            AuthenticateWithServer(input)
+        );
+    }
+
+    IEnumerator AuthenticateWithServer(string password)
+    {
+        // Evita múltiples intentos simultáneos.
+        isEntering = false;
+
+        if (loginButton != null)
+            loginButton.interactable = false;
+
+        ClearError();
+
+        if (errorText != null)
+            errorText.text = "Verificando...";
+
+
+        ExhibitionAuthRequest authData =
+            new ExhibitionAuthRequest();
+
+        authData.password = password;
+
+        string json =
+            JsonUtility.ToJson(authData);
+
+        byte[] body =
+            System.Text.Encoding.UTF8.GetBytes(json);
+
+
+        using (
+            UnityWebRequest request =
+                new UnityWebRequest(
+                    authUrl,
+                    UnityWebRequest.kHttpVerbPOST
+                )
+        )
+        {
+            request.uploadHandler =
+                new UploadHandlerRaw(body);
+
+            request.downloadHandler =
+                new DownloadHandlerBuffer();
+
+            request.SetRequestHeader(
+                "Content-Type",
+                "application/json"
+            );
+
+
+            yield return request.SendWebRequest();
+
+
+            // ---------- LOGIN CORRECTO ----------
+
+            if (request.responseCode == 200)
+            {
+                ExhibitionAuthResponse response =
+                    JsonUtility.FromJson
+                    <ExhibitionAuthResponse>(
+                        request.downloadHandler.text
+                    );
+
+                if (
+                    response != null &&
+                    response.success
+                )
+                {
+                    passwordCanvas.SetActive(false);
+                    adminCanvas.SetActive(true);
+
+                    input = "";
+
+                    ClearError();
+
+                    if (loginButton != null)
+                        loginButton.interactable = true;
+
+                    yield break;
+                }
+            }
+
+
+            // ---------- CLAVE INCORRECTA ----------
+
+            if (request.responseCode == 401)
+            {
+                if (errorText != null)
+                {
+                    errorText.text =
+                        "Clave incorrecta. Inténtalo nuevamente.";
+                }
+
+                input = "";
+                isEntering = true;
+
+                UpdatePasswordDisplay();
+
+                if (loginButton != null)
+                    loginButton.interactable = true;
+
+                yield break;
+            }
+
+
+            // ---------- OTRO ERROR ----------
+
+            Debug.LogError(
+                "Error autenticando administrador.\n" +
+                "HTTP: " + request.responseCode + "\n" +
+                "Error: " + request.error + "\n" +
+                "Response: " + request.downloadHandler.text
+            );
+
+            if (errorText != null)
+            {
+                errorText.text =
+                    "No se pudo conectar con el servidor.";
+            }
+
+            isEntering = true;
+
+            if (loginButton != null)
+                loginButton.interactable = true;
         }
     }
 

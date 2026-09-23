@@ -11463,7 +11463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f6e449eb88100342920b9b7c723b01f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionAppearanceManager
-  settingsUrl: https://relish-angriness-submarine.ngrok-free.dev/api/exhibition/settings
+  settingsUrl: http://192.168.1.21:8000/api/exhibition/settings
   exhibitionRenderer: {fileID: 1604419288}
   wallMaterialIndex: 0
   floorMaterialIndex: 1
