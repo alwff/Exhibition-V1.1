@@ -18,9 +18,27 @@ public class SpecimenAPIClient : MonoBehaviour
 
    #region HTTP Core
 
-       string BuildURL(string endpoint)
+    string BuildURL(string endpoint)
     {
-        return APIConfig.Build(endpoint);
+        if (endpoint == "specimens")
+        {
+            return ApiRoutes.Specimens;
+        }
+
+        if (endpoint.StartsWith("specimen/"))
+        {
+            string identifier =
+                endpoint.Substring("specimen/".Length);
+
+            return ApiRoutes.Specimen(identifier);
+        }
+
+        Debug.LogError(
+            "Endpoint desconocido en SpecimenAPIClient: "
+            + endpoint
+        );
+
+        return "";
     }
 
     IEnumerator SendGET(

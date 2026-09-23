@@ -31,9 +31,6 @@ public class AdminAuth : MonoBehaviour
     public Button loginButton;
     public Button eyeButton;
 
-    [Header("Authentication")]
-    public string authUrl = "/api/exhibition/auth";
-
     [Header("Admin Shortcut")]
     public KeyCode adminKey = KeyCode.M;
 
@@ -46,6 +43,11 @@ public class AdminAuth : MonoBehaviour
     private bool showPassword = false;
 
     public static string AdminToken { get; private set; }
+
+    public static void ClearAdminToken()
+    {
+        AdminToken = null;
+    }
 
     void Start()
     {
@@ -194,7 +196,7 @@ public class AdminAuth : MonoBehaviour
         using (
             UnityWebRequest request =
                 new UnityWebRequest(
-                    authUrl,
+                    ApiRoutes.ExhibitionAuth,
                     UnityWebRequest.kHttpVerbPOST
                 )
         )
@@ -313,7 +315,7 @@ public class AdminAuth : MonoBehaviour
             errorText.text = "";
     }
 
-    void CloseAll()
+    public void CloseAll()
     {
         passwordCanvas.SetActive(false);
         adminCanvas.SetActive(false);

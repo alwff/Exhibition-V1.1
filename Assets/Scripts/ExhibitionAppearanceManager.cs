@@ -12,9 +12,6 @@ public class ExhibitionAppearanceSettings
 
 public class ExhibitionAppearanceManager : MonoBehaviour
 {
-    [Header("API")]
-    public string settingsUrl = "/api/exhibition/settings";
-
     [Header("Exhibition Renderer")]
     public Renderer exhibitionRenderer;
 
@@ -108,7 +105,7 @@ public class ExhibitionAppearanceManager : MonoBehaviour
 
         using (
             UnityWebRequest request =
-                UnityWebRequest.Get(settingsUrl)
+                UnityWebRequest.Get(ApiRoutes.ExhibitionSettings)
         )
         {
             yield return request.SendWebRequest();
