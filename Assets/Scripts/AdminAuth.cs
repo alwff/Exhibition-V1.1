@@ -15,7 +15,9 @@ public class ExhibitionAuthRequest
 public class ExhibitionAuthResponse
 {
     public bool success;
+    public string token;
 }
+
 
 public class AdminAuth : MonoBehaviour
 {
@@ -42,6 +44,8 @@ public class AdminAuth : MonoBehaviour
     private string input = "";
     private bool isEntering = false;
     private bool showPassword = false;
+
+    public static string AdminToken { get; private set; }
 
     void Start()
     {
@@ -225,6 +229,8 @@ public class AdminAuth : MonoBehaviour
                     response.success
                 )
                 {
+                    AdminToken = response.token;
+                    
                     passwordCanvas.SetActive(false);
                     adminCanvas.SetActive(true);
 

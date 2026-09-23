@@ -201,6 +201,14 @@ public class ConfigManager : MonoBehaviour
                 "application/json"
             );
 
+            if (!string.IsNullOrEmpty(AdminAuth.AdminToken))
+            {
+                request.SetRequestHeader(
+                    "Authorization",
+                    "Bearer " + AdminAuth.AdminToken
+                );
+            }
+
             yield return request.SendWebRequest();
 
             if (request.result != UnityWebRequest.Result.Success)

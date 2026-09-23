@@ -7514,7 +7514,7 @@ MonoBehaviour:
   errorText: {fileID: 1055924497}
   loginButton: {fileID: 158159754}
   eyeButton: {fileID: 1554347488}
-  correctPassword: 1234
+  authUrl: http://192.168.1.21:8000/api/exhibition/auth
   adminKey: 109
   playerController: {fileID: 884262628}
   playerRigidbody: {fileID: 884262629}
