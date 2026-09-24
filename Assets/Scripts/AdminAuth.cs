@@ -330,7 +330,16 @@ public class AdminAuth : MonoBehaviour
         if (playerController != null)
             playerController.enabled = true;
 
+    #if UNITY_WEBGL && !UNITY_EDITOR
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = false;
+
+    #else
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+    #endif
     }
 }

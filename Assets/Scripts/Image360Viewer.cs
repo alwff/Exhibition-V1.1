@@ -95,10 +95,23 @@ public class Image360Viewer : MonoBehaviour
         isDragging = false;
 
         panel.SetActive(false);
+
         InputBlocker.blockInput = false;
+
+    #if UNITY_WEBGL && !UNITY_EDITOR
+
+        // En WebGL no forzamos Pointer Lock al cerrar el visor.
+        // El navegador requiere una interacción válida del usuario
+        // para volver a capturar el cursor.
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = false;
+
+    #else
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+    #endif
     }
 
     void Update()

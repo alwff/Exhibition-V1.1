@@ -36,9 +36,9 @@ public class SUPERCharacterAIO : MonoBehaviour{
     public Sprite crosshairSprite;
     public PerspectiveModes cameraPerspective = PerspectiveModes._1stPerson;
     //use mouse wheel to switch modes. (too close will set it to fps mode and attempting to zoom out from fps will switch to tps mode)
-    public bool automaticallySwitchPerspective = true;
+    public bool automaticallySwitchPerspective = false;
     #if ENABLE_INPUT_SYSTEM
-    public Key perspectiveSwitchingKey = Key.Q;
+    public Key perspectiveSwitchingKey = Key.None;
     #else
     public KeyCode perspectiveSwitchingKey_L = KeyCode.None;
     #endif

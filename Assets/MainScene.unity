@@ -7574,10 +7574,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab554cb9d5a5bc14199f2a6dd10dd0d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConfigManager
-  filePath: C:/Specimens/config.json
   gallery: {fileID: 534229860}
   apiClient: {fileID: 1130808964}
-  exhibitionConfigUrl: /api/exhibition/config
   saveStatusText: {fileID: 465118063}
   retryDelay: 1
   adminAuth: {fileID: 534229864}
@@ -7654,7 +7652,6 @@ MonoBehaviour:
   errorText: {fileID: 1055924497}
   loginButton: {fileID: 158159754}
   eyeButton: {fileID: 1554347488}
-  authUrl: http://192.168.1.21:8000/api/exhibition/auth
   adminKey: 109
   playerController: {fileID: 884262628}
   playerRigidbody: {fileID: 884262629}
@@ -11604,7 +11601,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f6e449eb88100342920b9b7c723b01f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExhibitionAppearanceManager
-  settingsUrl: http://192.168.1.21:8000/api/exhibition/settings
   exhibitionRenderer: {fileID: 1604419288}
   wallMaterialIndex: 0
   floorMaterialIndex: 1
@@ -28117,6 +28113,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6817638361354391142, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6817638361354391144, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -28155,6 +28155,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6817638361354391144, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817638361354391145, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
+      propertyPath: canSlide
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817638361354391145, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
+      propertyPath: slideKey
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817638361354391145, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
+      propertyPath: drawPrimitiveUI
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817638361354391145, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
+      propertyPath: autoGenerateCrosshair
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817638361354391145, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
+      propertyPath: perspectiveSwitchingKey
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6817638361354391145, guid: 32fce1012f8c24c43af86f00f457f500, type: 3}
