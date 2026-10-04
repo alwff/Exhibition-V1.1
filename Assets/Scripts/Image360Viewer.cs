@@ -19,6 +19,7 @@ public class Image360Viewer : MonoBehaviour
     private int index = 0;
 
     private bool isDragging = false;
+    private bool waitingForGameplayLock = false;
 
     public float hintDuration = 5f;
 
@@ -41,6 +42,41 @@ public class Image360Viewer : MonoBehaviour
         {
             display.texture = frames[0];
         }
+    }
+
+    private void SetViewerCursor()
+    {
+        waitingForGameplayLock = false;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void SetDragCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    private void RestoreGameplayCursor()
+    {
+    #if UNITY_WEBGL && !UNITY_EDITOR
+
+        // WebGL necesita una nueva interacción del usuario
+        // antes de recuperar Pointer Lock.
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = false;
+
+        waitingForGameplayLock = true;
+
+    #else
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        waitingForGameplayLock = false;
+
+    #endif
     }
 
     private void Open()
@@ -66,8 +102,7 @@ public class Image360Viewer : MonoBehaviour
         InputBlocker.blockInput = true;
 
         // Cursor disponible para interactuar con la UI
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        SetViewerCursor();
 
         if (playerRigidbody != null)
         {
@@ -94,28 +129,34 @@ public class Image360Viewer : MonoBehaviour
     {
         isDragging = false;
 
+        CancelInvoke(nameof(HideHint));
+
         panel.SetActive(false);
 
         InputBlocker.blockInput = false;
 
-    #if UNITY_WEBGL && !UNITY_EDITOR
-
-        // En WebGL no forzamos Pointer Lock al cerrar el visor.
-        // El navegador requiere una interacción válida del usuario
-        // para volver a capturar el cursor.
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = false;
-
-    #else
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-    #endif
+        RestoreGameplayCursor();
     }
 
     void Update()
     {
+
+        #if UNITY_WEBGL && !UNITY_EDITOR
+
+        if (waitingForGameplayLock && !panel.activeSelf)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+
+                waitingForGameplayLock = false;
+            }
+
+            return;
+        }
+
+        #endif
         if (!panel.activeSelf || frames == null || frames.Length == 0) return;
 
         // ROTACIÓN
@@ -132,9 +173,7 @@ public class Image360Viewer : MonoBehaviour
             if (mouseInsideViewport)
             {
                 isDragging = true;
-
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
+                SetDragCursor();
             }
         }
 
@@ -156,9 +195,7 @@ public class Image360Viewer : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
             isDragging = false;
-
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            SetViewerCursor();
         }
 
         // ZOOM INPUT
