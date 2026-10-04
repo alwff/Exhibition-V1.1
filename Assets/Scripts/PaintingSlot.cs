@@ -17,6 +17,7 @@ public class PaintingSlot : MonoBehaviour, IInteractable
 
     void Start()
     {
+
         if (string.IsNullOrEmpty(specimenID))
             return;
 
@@ -119,6 +120,8 @@ public class PaintingSlot : MonoBehaviour, IInteractable
     {
         isLoadingImages = true;
 
+        viewer.ShowLoading();
+
         LoadedSpecimen completeSpecimen = null;
 
 
@@ -135,6 +138,8 @@ public class PaintingSlot : MonoBehaviour, IInteractable
 
 
         isLoadingImages = false;
+
+        viewer.HideLoading();
 
 
         if (

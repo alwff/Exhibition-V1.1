@@ -12,6 +12,7 @@ public class Image360Viewer : MonoBehaviour
 
     public GameObject hintContainer;
     public TextMeshProUGUI hintText;
+    public GameObject loading360Text;
 
     public Rigidbody playerRigidbody;
 
@@ -79,6 +80,23 @@ public class Image360Viewer : MonoBehaviour
     #endif
     }
 
+    public void ShowLoading()
+    {
+        if (loading360Text != null)
+            loading360Text.SetActive(true);
+    }
+
+    public void HideLoading()
+    {
+        if (loading360Text != null)
+            loading360Text.SetActive(false);
+    }
+
+    void Start()
+    {
+        HideLoading();
+    }
+
     private void Open()
     {
         panel.SetActive(true);
@@ -127,15 +145,34 @@ public class Image360Viewer : MonoBehaviour
 
     public void Close()
     {
+        // Cancelar completamente cualquier drag activo
+        // antes de cerrar el visor.
         isDragging = false;
 
         CancelInvoke(nameof(HideHint));
+
+        // Primero liberar siempre el cursor.
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
         panel.SetActive(false);
 
         InputBlocker.blockInput = false;
 
-        RestoreGameplayCursor();
+    #if UNITY_WEBGL && !UNITY_EDITOR
+
+        // En WebGL no intentamos recuperar Pointer Lock
+        // durante el mismo gesto que cerró el visor.
+        waitingForGameplayLock = true;
+
+    #else
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        waitingForGameplayLock = false;
+
+    #endif
     }
 
     void Update()
