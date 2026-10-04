@@ -19,6 +19,7 @@ public class SpecimenListItem
     public string id;
     public string name;
     public string collection;
+    public string preview;
 }
 
 [Serializable]

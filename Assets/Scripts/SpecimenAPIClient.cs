@@ -182,6 +182,69 @@ public class SpecimenAPIClient : MonoBehaviour
 
     #region Image Loading
 
+    public IEnumerator LoadPreview(
+        string url,
+        System.Action<Texture2D> callback)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            callback?.Invoke(null);
+            yield break;
+        }
+
+
+        if (HasImage(url))
+        {
+            callback?.Invoke(
+                GetCachedImage(url)
+            );
+
+            yield break;
+        }
+
+
+        using (
+            UnityWebRequest request =
+                UnityWebRequestTexture.GetTexture(url)
+        )
+        {
+            request.timeout = timeoutSeconds;
+
+            yield return request.SendWebRequest();
+
+
+            if (
+                request.result !=
+                UnityWebRequest.Result.Success
+            )
+            {
+                Debug.LogWarning(
+                    "No se pudo cargar preview: "
+                    + url
+                    + "\n"
+                    + request.error
+                );
+
+                callback?.Invoke(null);
+
+                yield break;
+            }
+
+
+            Texture2D texture =
+                DownloadHandlerTexture.GetContent(
+                    request
+                );
+
+            SaveImage(
+                url,
+                texture
+            );
+
+            callback?.Invoke(texture);
+        }
+    }
+
     public IEnumerator LoadImagesStreaming(
         string[] urls,
         System.Action<Texture2D> onFirstLoaded,

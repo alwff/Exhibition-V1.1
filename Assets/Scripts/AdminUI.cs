@@ -102,19 +102,19 @@ public class AdminUI : MonoBehaviour
 
                         StartCoroutine(
 
-                            apiClient.LoadCompleteSpecimen(
+                            apiClient.LoadPreview(
 
-                                s.id,
+                                s.preview,
 
-                                loaded =>
+                                preview =>
                                 {
                                     card
                                         .GetComponent<SpecimenCardUI>()
                                         .Setup(
-                                            loaded.data.id,
-                                            loaded.data.name,
-                                            loaded.data.collection,
-                                            loaded.preview,
+                                            s.id,
+                                            s.name,
+                                            s.collection,
+                                            preview,
                                             OnSpecimenSelected,
                                             SelectCard
                                         );
