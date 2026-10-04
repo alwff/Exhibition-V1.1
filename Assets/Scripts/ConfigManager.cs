@@ -377,7 +377,7 @@ public class ConfigManager : MonoBehaviour
 
                 LoadedSpecimen loaded = null;
 
-                yield return apiClient.LoadCompleteSpecimen(
+                yield return apiClient.LoadSpecimenPreview(
                     portalCode,
                     specimen =>
                     {

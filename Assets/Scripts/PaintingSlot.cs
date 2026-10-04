@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using SUPERCharacter;
 
@@ -10,6 +11,7 @@ public class PaintingSlot : MonoBehaviour, IInteractable
     public SpecimenAPIClient apiClient;
 
     private LoadedSpecimen loadedSpecimen;
+    private bool isLoadingImages = false;
 
     private int materialIndex = -1;
 
@@ -23,7 +25,7 @@ public class PaintingSlot : MonoBehaviour, IInteractable
 
         StartCoroutine(
 
-            apiClient.LoadCompleteSpecimen(
+            apiClient.LoadSpecimenPreview(
 
                 specimenID,
 
@@ -53,27 +55,109 @@ public class PaintingSlot : MonoBehaviour, IInteractable
 
     public bool Interact()
     {
-        if (viewer == null || apiClient == null)
+        if (
+            viewer == null ||
+            apiClient == null
+        )
         {
-            Debug.LogError("Falta asignar viewer o apiClient");
+            Debug.LogError(
+                "Falta asignar viewer o apiClient"
+            );
+
             return false;
         }
 
-        if (string.IsNullOrEmpty(specimenID))
+
+        if (
+            string.IsNullOrEmpty(specimenID) ||
+            loadedSpecimen == null
+        )
         {
-            Debug.LogError("ID inválido");
+            Debug.LogWarning(
+                "El espécimen todavía no está disponible."
+            );
+
             return false;
         }
 
-        if (loadedSpecimen == null)
-        {
-            Debug.LogWarning("Specimen aún no ha terminado de cargarse.");
-            return false;
-        }    
 
-        viewer.Show(loadedSpecimen);
+        // La secuencia ya está cargada.
+        if (
+            loadedSpecimen.imagesReady &&
+            loadedSpecimen.images != null &&
+            loadedSpecimen.images.Length > 0
+        )
+        {
+            viewer.Show(
+                loadedSpecimen
+            );
+
+            return true;
+        }
+
+
+        // Evitar iniciar varias descargas si el
+        // usuario interactúa repetidamente.
+        if (isLoadingImages)
+        {
+            Debug.Log(
+                "La secuencia todavía se está cargando."
+            );
+
+            return true;
+        }
+
+
+        StartCoroutine(
+            LoadImagesAndOpenViewer()
+        );
 
         return true;
+    }
+
+    private IEnumerator LoadImagesAndOpenViewer()
+    {
+        isLoadingImages = true;
+
+        LoadedSpecimen completeSpecimen = null;
+
+
+        yield return apiClient.LoadCompleteSpecimen(
+
+            specimenID,
+
+            specimen =>
+            {
+                completeSpecimen = specimen;
+            }
+
+        );
+
+
+        isLoadingImages = false;
+
+
+        if (
+            completeSpecimen == null ||
+            completeSpecimen.images == null ||
+            completeSpecimen.images.Length == 0
+        )
+        {
+            Debug.LogWarning(
+                "No fue posible cargar la secuencia del espécimen."
+            );
+
+            yield break;
+        }
+
+
+        loadedSpecimen =
+            completeSpecimen;
+
+
+        viewer.Show(
+            loadedSpecimen
+        );
     }
 
     public void SetSpecimen(LoadedSpecimen specimen)
@@ -96,6 +180,7 @@ public class PaintingSlot : MonoBehaviour, IInteractable
     {
         loadedSpecimen = null;
         specimenID = "";
+        isLoadingImages = false;
 
         if (targetRenderer == null)
             return;

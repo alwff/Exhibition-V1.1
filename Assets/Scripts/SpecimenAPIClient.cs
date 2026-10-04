@@ -342,6 +342,61 @@ public class SpecimenAPIClient : MonoBehaviour
         );
     }
 
+    public IEnumerator LoadSpecimenPreview(
+        string id,
+        System.Action<LoadedSpecimen> callback)
+    {
+        SpecimenData specimen = null;
+
+        yield return GetSpecimen(
+            id,
+            data =>
+            {
+                specimen = data;
+            }
+        );
+
+        if (specimen == null)
+        {
+            callback?.Invoke(null);
+            yield break;
+        }
+
+
+        Texture2D preview = null;
+
+        if (
+            specimen.images != null &&
+            specimen.images.Length > 0
+        )
+        {
+            yield return LoadPreview(
+                specimen.images[0],
+                texture =>
+                {
+                    preview = texture;
+                }
+            );
+        }
+
+
+        LoadedSpecimen loaded =
+            new LoadedSpecimen();
+
+        loaded.data = specimen;
+
+        loaded.preview = preview;
+
+        loaded.images = null;
+
+        loaded.isCached = false;
+
+        loaded.imagesReady = false;
+
+
+        callback?.Invoke(loaded);
+    }
+
     IEnumerator PrepareSpecimen(
         SpecimenData specimen,
         System.Action<LoadedSpecimen> callback)

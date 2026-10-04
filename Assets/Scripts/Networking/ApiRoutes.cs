@@ -9,7 +9,7 @@ public static class ApiRoutes
 
     // Desarrollo desde Unity Editor.
     private const string BaseUrl =
-        "http://192.168.1.21:8000";
+        "http://192.168.1.18:8000";
 
 #endif
 
