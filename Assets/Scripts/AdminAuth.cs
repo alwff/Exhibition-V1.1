@@ -38,6 +38,9 @@ public class AdminAuth : MonoBehaviour
     public SUPERCharacterAIO playerController;
     public Rigidbody playerRigidbody;
 
+    [Header("Cursor Management")]
+    public GameplayCursorManager cursorManager;
+
     private string input = "";
     private bool isEntering = false;
     private bool showPassword = false;
@@ -145,8 +148,8 @@ public class AdminAuth : MonoBehaviour
             playerRigidbody.angularVelocity = Vector3.zero;
         }
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        if (cursorManager != null)
+            cursorManager.EnterUI();
     }
 
     public void TryLogin()
@@ -330,16 +333,8 @@ public class AdminAuth : MonoBehaviour
         if (playerController != null)
             playerController.enabled = true;
 
-    #if UNITY_WEBGL && !UNITY_EDITOR
+        if (cursorManager != null)
+            cursorManager.ExitUI();
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = false;
-
-    #else
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-    #endif
     }
 }

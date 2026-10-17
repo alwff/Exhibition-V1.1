@@ -16,11 +16,13 @@ public class Image360Viewer : MonoBehaviour
 
     public Rigidbody playerRigidbody;
 
+    [Header("Cursor Management")]
+    public GameplayCursorManager cursorManager;
+
     private Texture2D[] frames;
     private int index = 0;
 
     private bool isDragging = false;
-    private bool waitingForGameplayLock = false;
 
     public float hintDuration = 5f;
 
@@ -43,41 +45,6 @@ public class Image360Viewer : MonoBehaviour
         {
             display.texture = frames[0];
         }
-    }
-
-    private void SetViewerCursor()
-    {
-        waitingForGameplayLock = false;
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-
-    private void SetDragCursor()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
-
-    private void RestoreGameplayCursor()
-    {
-    #if UNITY_WEBGL && !UNITY_EDITOR
-
-        // WebGL necesita una nueva interacción del usuario
-        // antes de recuperar Pointer Lock.
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = false;
-
-        waitingForGameplayLock = true;
-
-    #else
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        waitingForGameplayLock = false;
-
-    #endif
     }
 
     public void ShowLoading()
@@ -119,8 +86,9 @@ public class Image360Viewer : MonoBehaviour
 
         InputBlocker.blockInput = true;
 
-        // Cursor disponible para interactuar con la UI
-        SetViewerCursor();
+        // Liberar cursor para utilizar el visor.
+        if (cursorManager != null)
+            cursorManager.EnterUI();
 
         if (playerRigidbody != null)
         {
@@ -135,7 +103,7 @@ public class Image360Viewer : MonoBehaviour
 
             if (hintText != null)
             {
-                hintText.text = "Arrastra presionando click izquierdo para rotar\nScroll para zoom\nPresiona X para cerrar";
+                hintText.text = "Mantén click izquierdo para rotar\nScroll para zoom\nPresiona X o utiliza el botón para cerrar";
             }
 
             CancelInvoke(nameof(HideHint));
@@ -145,55 +113,20 @@ public class Image360Viewer : MonoBehaviour
 
     public void Close()
     {
-        // Cancelar completamente cualquier drag activo
-        // antes de cerrar el visor.
         isDragging = false;
 
         CancelInvoke(nameof(HideHint));
-
-        // Primero liberar siempre el cursor.
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
 
         panel.SetActive(false);
 
         InputBlocker.blockInput = false;
 
-    #if UNITY_WEBGL && !UNITY_EDITOR
-
-        // En WebGL no intentamos recuperar Pointer Lock
-        // durante el mismo gesto que cerró el visor.
-        waitingForGameplayLock = true;
-
-    #else
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        waitingForGameplayLock = false;
-
-    #endif
+        if (cursorManager != null)
+            cursorManager.ExitUI();
     }
 
     void Update()
     {
-
-        #if UNITY_WEBGL && !UNITY_EDITOR
-
-        if (waitingForGameplayLock && !panel.activeSelf)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-
-                waitingForGameplayLock = false;
-            }
-
-            return;
-        }
-
-        #endif
         if (!panel.activeSelf || frames == null || frames.Length == 0) return;
 
         // ROTACIÓN
@@ -210,7 +143,9 @@ public class Image360Viewer : MonoBehaviour
             if (mouseInsideViewport)
             {
                 isDragging = true;
-                SetDragCursor();
+
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
         }
 
@@ -232,7 +167,9 @@ public class Image360Viewer : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
             isDragging = false;
-            SetViewerCursor();
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         // ZOOM INPUT
@@ -258,7 +195,7 @@ public class Image360Viewer : MonoBehaviour
             Time.deltaTime * zoomSmooth
         );
 
-        // CERRAR
+        // CERRAR VISOR CON X
         if (Input.GetKeyDown(KeyCode.X))
         {
             Close();
