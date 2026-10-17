@@ -453,13 +453,25 @@ public class SpecimenAPIClient : MonoBehaviour
 
                 loaded.isCached = false;
 
-                loaded.imagesReady = true;
+                loaded.imagesReady =
+                    textures.Length > 0 &&
+                    textures.Length == specimen.images.Length;
 
                 Debug.Log(
                     $"Prepared specimen: {loaded.data.id}"
                 );
 
-                SaveLoadedSpecimen(loaded);
+                if (loaded.imagesReady)
+                {
+                    SaveLoadedSpecimen(loaded);
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"Secuencia incompleta de {specimen.id}: " +
+                        $"{textures.Length}/{specimen.images.Length} imágenes."
+                    );
+                }
 
                 callback?.Invoke(loaded);
             }

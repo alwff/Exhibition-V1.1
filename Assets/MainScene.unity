@@ -6919,6 +6919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConfigManager
   gallery: {fileID: 534229860}
   apiClient: {fileID: 1130808964}
+  movementTutorial: {fileID: 349691878}
   saveStatusText: {fileID: 465118063}
   retryDelay: 1
   adminAuth: {fileID: 534229864}

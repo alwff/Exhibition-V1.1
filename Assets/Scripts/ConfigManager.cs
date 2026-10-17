@@ -3,8 +3,11 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
 using TMPro;
+using System.Runtime.InteropServices;
+using SUPERCharacter;
 
 [System.Serializable]
+
 public class ConfigData
 {
     public string configID;
@@ -27,6 +30,18 @@ public class ConfigManager : MonoBehaviour
 
     public SpecimenAPIClient apiClient;
 
+    [Header("Inicio del recorrido")]
+    public MovementTutorialUI movementTutorial;
+
+    public SUPERCharacterAIO playerController;
+
+    public static bool IsInitialLoading { get; private set; }
+
+    private bool playerWasEnabled;
+
+    private bool contentReady = false;
+    private bool explorationStarted = false;
+
     [Header("Save Feedback")]
     public TextMeshProUGUI saveStatusText;
 
@@ -36,6 +51,79 @@ public class ConfigManager : MonoBehaviour
     public AdminAuth adminAuth;
 
     private string configID = Guid.NewGuid().ToString();
+
+    #if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void ExhibitionLoadProgress(
+            int completed,
+            int total
+        );
+
+        [DllImport("__Internal")]
+        private static extern void ExhibitionLoadReady();
+
+        [DllImport("__Internal")]
+        private static extern void ExhibitionLoadFailed();  
+    #endif
+
+        private void Awake()
+        {
+            IsInitialLoading = true;
+            InputBlocker.blockInput = true;
+
+            if (playerController != null)
+            {
+                playerWasEnabled = playerController.enabled;
+                playerController.enabled = false;
+            }
+        }
+
+        public void BeginExploration()
+        {
+            if (!contentReady || explorationStarted)
+                return;
+
+            explorationStarted = true;
+
+            IsInitialLoading = false;
+            InputBlocker.blockInput = false;
+
+            if (playerController != null)
+                playerController.enabled = playerWasEnabled;
+
+            if (movementTutorial != null)
+                movementTutorial.ShowTutorial();
+        }
+
+        private void ReportLoadingFailed()
+        {
+        #if UNITY_WEBGL && !UNITY_EDITOR
+            ExhibitionLoadFailed();
+        #endif
+        }
+
+        private void ReportLoadingProgress(int completed, int total)
+        {
+        #if UNITY_WEBGL && !UNITY_EDITOR
+                ExhibitionLoadProgress(completed, total);
+        #else
+                Debug.Log(
+                    $"Carga de exhibición: {completed}/{total} especímenes."
+                );
+        #endif
+        }
+
+        private void ReportLoadingReady()
+        {
+                contentReady = true;
+
+            #if UNITY_WEBGL && !UNITY_EDITOR
+                ExhibitionLoadReady();
+            #else
+                Debug.Log("Exhibición preparada para explorar.");
+                BeginExploration();
+            #endif
+        }
 
     IEnumerator Start()
     {
@@ -330,9 +418,22 @@ public class ConfigManager : MonoBehaviour
 
     IEnumerator LoadWebConfig()
     {
+        if (gallery == null || apiClient == null)
+        {
+            Debug.LogError(
+                "Falta asignar Gallery o API Client en ConfigManager."
+            );
+
+            ReportLoadingFailed();
+
+            yield break;
+        }
+
         using (UnityWebRequest request =
             UnityWebRequest.Get(ApiRoutes.ExhibitionConfig))
         {
+            request.timeout = 15;
+
             yield return request.SendWebRequest();
 
             if (request.result != UnityWebRequest.Result.Success)
@@ -341,6 +442,8 @@ public class ConfigManager : MonoBehaviour
                     "Error cargando configuración Web: " +
                     request.error
                 );
+
+                ReportLoadingFailed();
 
                 yield break;
             }
@@ -352,32 +455,52 @@ public class ConfigManager : MonoBehaviour
 
             if (data == null || data.slots == null)
             {
-                Debug.LogWarning(
-                    "Configuración Web inválida."
-                );
+                Debug.LogError("Configuración Web inválida.");
 
+                ReportLoadingFailed();
                 yield break;
             }
 
-            // Asegura que una recarga refleje exactamente
-            // la configuración almacenada en PostgreSQL.
+            int slotCount = Mathf.Min(
+                data.slots.Length,
+                gallery.slots.Length
+            );
+
+            int total = 0;
+
+            for (int i = 0; i < slotCount; i++)
+            {
+                if (!string.IsNullOrEmpty(data.slots[i]))
+                    total++;
+            }
+
             gallery.ClearAll();
 
-            for (
-                int i = 0;
-                i < data.slots.Length &&
-                i < gallery.slots.Length;
-                i++
-            )
+            int completed = 0;
+
+            ReportLoadingProgress(completed, total);
+
+            for (int i = 0; i < slotCount; i++)
             {
                 string portalCode = data.slots[i];
 
                 if (string.IsNullOrEmpty(portalCode))
                     continue;
 
+                if (gallery.slots[i] == null)
+                {
+                    Debug.LogError(
+                        $"No está asignado el cuadro {i + 1} en Gallery."
+                    );
+
+                    ReportLoadingFailed();
+
+                    yield break;
+                }
+
                 LoadedSpecimen loaded = null;
 
-                yield return apiClient.LoadSpecimenPreview(
+                yield return apiClient.LoadCompleteSpecimen(
                     portalCode,
                     specimen =>
                     {
@@ -385,15 +508,36 @@ public class ConfigManager : MonoBehaviour
                     }
                 );
 
-                if (loaded != null)
+                if (
+                    loaded == null ||
+                    !loaded.imagesReady ||
+                    loaded.images == null ||
+                    loaded.images.Length == 0
+                )
                 {
-                    gallery.AssignSpecimen(i, loaded);
+                    Debug.LogError(
+                        $"No se completó la carga de {portalCode}. " +
+                        "La exhibición todavía no está preparada."
+                    );
+
+                    ReportLoadingFailed();
+
+                    yield break;
                 }
+
+                gallery.AssignSpecimen(i, loaded);
+
+                completed++;
+
+                ReportLoadingProgress(completed, total);
             }
 
             Debug.Log(
-                "Configuración de exhibición cargada desde servidor."
+                "Configuración e imágenes de la exhibición " +
+                "cargadas desde el servidor."
             );
+
+            ReportLoadingReady();
         }
     }
 

@@ -69,6 +69,10 @@ public class AdminAuth : MonoBehaviour
 
     void Update()
     {
+
+        if (ConfigManager.IsInitialLoading)
+            return;
+
         if (Input.GetKeyDown(adminKey))
         {
             // Si ya estamos dentro del menú Admin, M sale directamente al museo

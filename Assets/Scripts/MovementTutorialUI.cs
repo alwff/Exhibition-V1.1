@@ -16,7 +16,7 @@ public class MovementTutorialUI : MonoBehaviour
 
     private void Start()
     {
-        ShowTutorial();
+        tutorialPanel.SetActive(false);
     }
 
     public void ShowTutorial()
