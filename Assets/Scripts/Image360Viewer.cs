@@ -103,7 +103,9 @@ public class Image360Viewer : MonoBehaviour
 
             if (hintText != null)
             {
-                hintText.text = "Mantén click izquierdo para rotar\nScroll para zoom\nPresiona X o utiliza el botón para cerrar";
+                hintText.text = "Arrastra con el mouse o utiliza ← → para rotar\n" +
+                                "Scroll para zoom\n" +
+                                "Presiona X o utiliza el botón para cerrar";
             }
 
             CancelInvoke(nameof(HideHint));
@@ -164,6 +166,7 @@ public class Image360Viewer : MonoBehaviour
             display.texture = frames[index];
         }
 
+        // CONTROL DE SECUENCIA CON MOUSE
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
             isDragging = false;
@@ -171,6 +174,24 @@ public class Image360Viewer : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+
+        
+        // CONTROL DE SECUENCIA CON TECLADO
+        if (!isDragging)
+        {
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                index = (index + 1) % frames.Length;
+                display.texture = frames[index];
+            }
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                index = (index - 1 + frames.Length) % frames.Length;
+                display.texture = frames[index];
+            }
+        }
+
 
         // ZOOM INPUT
         float scroll = Input.GetAxis("Mouse ScrollWheel");

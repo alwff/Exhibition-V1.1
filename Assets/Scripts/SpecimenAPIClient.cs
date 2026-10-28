@@ -552,10 +552,43 @@ public class SpecimenAPIClient : MonoBehaviour
                 materialIndex = 1;
         }
 
-        mats[materialIndex].mainTexture =
-            specimen.preview;
+        
+        Material pictureMaterial = mats[materialIndex];
+
+        pictureMaterial.mainTexture = specimen.preview;
+
+        // Relación de aspecto de la fotografía.
+        float imageAspect =
+            (float)specimen.preview.width /
+            specimen.preview.height;
+
+        // Relación de aspecto inicial del cuadro.
+        float frameAspect = 1f;
+
+        Vector2 textureScale = Vector2.one;
+
+        if (imageAspect > frameAspect)
+        {
+            // Fotografía más ancha: recortar los lados.
+            textureScale.x = frameAspect / imageAspect;
+        }
+        else
+        {
+            // Fotografía más alta: recortar arriba y abajo.
+            textureScale.y = imageAspect / frameAspect;
+        }
+
+        // Centrar el recorte.
+        Vector2 textureOffset = new Vector2(
+            (1f - textureScale.x) / 2f,
+            (1f - textureScale.y) / 2f
+        );
+
+        pictureMaterial.mainTextureScale = textureScale;
+        pictureMaterial.mainTextureOffset = textureOffset;
 
         renderer.materials = mats;
+
     }
 
     #endregion
