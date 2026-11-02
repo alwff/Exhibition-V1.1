@@ -1,5 +1,5 @@
-Alejandra María Cardona Cabrera
-Universidad del Valle de Guatemala.
+Alejandra María Cardona Cabrera //
+Universidad del Valle de Guatemala. //
 2026
 
 # Exhibition-V1.1
