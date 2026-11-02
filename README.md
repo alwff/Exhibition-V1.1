@@ -47,11 +47,6 @@ El proyecto permite generar una versión WebGL de la exhibición. Para compilarl
 
 El código del servidor Flask se mantiene en un proyecto separado.
 
-## Autoría y recursos
-
-**Alejandra María Cardona Cabrera**  
-Universidad del Valle de Guatemala  
-Departamento de Ingeniería Electrónica, Mecatrónica y Biomédica  
-2026
+## Recursos
 
 Los recursos de terceros utilizados conservan las condiciones de sus respectivas licencias.
